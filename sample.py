@@ -9,21 +9,7 @@ from six.moves import cPickle
 
 from utils import TextLoader
 from model import Model
-
-tf.app.flags.DEFINE_integer("num_units", 128, "Number of units of RNN cell.")
-tf.app.flags.DEFINE_boolean("use_lstm", True, "LSTM or GRU for the model.")
-tf.app.flags.DEFINE_integer("num_layers", 2, "Number of layers in the model.")
-tf.app.flags.DEFINE_float("learning_rate", 0.002, "Learning rate.")
-tf.app.flags.DEFINE_float("learning_rate_decay_factor", 0.97, "Learning rate decays by this much.")
-tf.app.flags.DEFINE_float("max_gradient_norm", 5.0, "Clip gradients to this norm.")
-tf.app.flags.DEFINE_integer("batch_size", 50, "Batch size to use during training.")
-tf.app.flags.DEFINE_integer("sequence_length", 50, "RNN sequence length.")
-tf.app.flags.DEFINE_string("data_dir", "data/ptb/", "Data directory.")
-tf.app.flags.DEFINE_string("checkpoint_dir", "CheckPoint", "Checkpoint directory.")
-tf.app.flags.DEFINE_integer("steps_per_checkpoint", 1000, "How many training steps to do per checkpoint.")
-tf.app.flags.DEFINE_integer("num_epochs", 50, "Number of epochs.")
-
-FLAGS = tf.app.flags.FLAGS
+from model_config import *
 
 def weighted_pick(weights):
   t = np.cumsum(weights)
@@ -36,7 +22,7 @@ def sample(step=None, num=200, prime='we ', sampling_type=1):
   chars = data_loader.chars
   vocab = data_loader.vocab
 
-  model = Model(FLAGS.num_units, FLAGS.use_lstm, FLAGS.num_layers, vocab_size, 1, FLAGS.learning_rate, FLAGS.learning_rate_decay_factor, FLAGS.max_gradient_norm, True)
+  model = Model(FLAGS.num_units, FLAGS.use_lstm, FLAGS.layer_norm, 1.0, FLAGS.num_layers, vocab_size, 1, FLAGS.learning_rate, FLAGS.learning_rate_decay_factor, FLAGS.max_gradient_norm, True)
 
   with tf.Session() as sess:
     ckpt = tf.train.get_checkpoint_state(FLAGS.checkpoint_dir)
