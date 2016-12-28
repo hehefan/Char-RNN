@@ -21,7 +21,7 @@ def train():
 
   ckpt = tf.train.get_checkpoint_state(FLAGS.checkpoint_dir)
   with tf.Session() as sess:
-    if ckpt and tf.gfile.Exists(ckpt.model_checkpoint_path):
+    if ckpt and tf.train.checkpoint_exists(ckpt.model_checkpoint_path):
       print("Reading model parameters from %s" % ckpt.model_checkpoint_path)
       model.saver.restore(sess, ckpt.model_checkpoint_path)
     else:
