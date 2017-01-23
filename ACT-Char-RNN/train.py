@@ -28,6 +28,7 @@ def train():
       print("Created model with fresh parameters.")
       sess.run(tf.global_variables_initializer())
     current_step = 0
+    previous_losses = []
     for e in range(FLAGS.num_epochs):
       sess.run(model.learning_rate_decay_op)
       data_loader.reset_batch_pointer()
@@ -40,6 +41,9 @@ def train():
         end = time.time()
         print("{}/{} (epoch {}), train_loss = {:.3f}, time/batch = {:.3f}".format(e * data_loader.num_batches + b, FLAGS.num_epochs * data_loader.num_batches, e, train_loss, end - start))
         current_step += 1
+        if len(previous_losses) > 2 and train_loss > max(previous_losses[-3:]):
+          sess.run(model.learning_rate_decay_op)
+        previous_losses.append(train_loss)
         if current_step % FLAGS.steps_per_checkpoint == 0  or (e==FLAGS.num_epochs-1 and b == data_loader.num_batches-1): # save for the last result
           checkpoint_path = os.path.join(FLAGS.checkpoint_dir, 'ckpt')
           model.saver.save(sess, checkpoint_path, global_step=model.global_step)

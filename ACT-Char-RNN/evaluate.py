@@ -60,7 +60,7 @@ def evaluate():
 
   data = [vocab[char] for char in data]
   model = Model(FLAGS.num_units, FLAGS.use_lstm, FLAGS.layer_norm, 1.0, FLAGS.num_layers, vocab_size, 1, FLAGS.learning_rate, FLAGS.learning_rate_decay_factor, FLAGS.max_gradient_norm, True)
-
+  max_bpc = 0
   with tf.Session() as sess:
     step = 0
     while True:
@@ -78,6 +78,8 @@ def evaluate():
           p = prob[0][data[i+1]]
           total -= np.log2(p)
         bpc = total/(len(data)-1)
+        if bpc > max_bpc:
+          max_bpc = bpc
         print('STEP %d: %.3f'%(step, bpc))
         sys.stdout.flush()
       else:
