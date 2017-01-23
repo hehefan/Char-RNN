@@ -10,7 +10,7 @@ import codecs
 
 from utils import TextLoader
 from model import Model
-from model_config import *
+from config import *
 import sys
 
 def evaluate_one(step=None):

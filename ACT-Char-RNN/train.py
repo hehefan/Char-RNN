@@ -9,7 +9,7 @@ from six.moves import cPickle
 
 from utils import TextLoader
 from model import Model
-from model_config import *
+from config import *
 
 FLAGS = tf.app.flags.FLAGS
 
