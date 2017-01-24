@@ -3,6 +3,7 @@
 Basic-Char-RNN
 ## ACT charater-level language model
 ACT-Char-RNN: Implement the paper [Adaptive Computation Time for Recurrent Neural Networks](https://arxiv.org/pdf/1603.08983v4.pdf) with TensorFlow. However, I get a reverse phenomenon contrast to the ACT paper. The neural network ponders less on space charecter than others. For example:
+
 | char | remaining probility| iteration times|
 |:----:|:------------------:|:--------------:|
 |   m  |      0.454589      |        2       |
