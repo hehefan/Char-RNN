@@ -28,3 +28,5 @@ ACT-Char-RNN: Implement the paper [Adaptive Computation Time for Recurrent Neura
 |   e  |      0.145703      |        5       |
 |   i  |      0.445629      |        2       |
 |   r  |      0.194783      |        3       |
+
+The code is inspired and adjusted from [DeNeutoy](https://github.com/DeNeutoy/act-tensorflow) and [abhitopia](https://github.com/abhitopia/ACT_Tensorflow).
