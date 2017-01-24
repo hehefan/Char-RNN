@@ -6,15 +6,6 @@ ACT-Char-RNN: Implement the paper [Adaptive Computation Time for Recurrent Neura
 
 | char | remaining probility| iteration times|
 |:----:|:------------------:|:--------------:|
-|   m  |      0.454589      |        2       |
-|   a  |      0.427821      |        2       |
-|   y  |      0.364154      |        2       |
-|      |      0.174726      |        2       |
-|   w  |      0.415943      |        2       | 
-|   a  |      0.252345      |        3       | 
-|   n  |      0.416126      |        2       |
-|   t  |      0.326544      |        3       |
-|      |      0.127796      |        2       |
 |   t  |      0.144139      |        4       |
 |   o  |      0.069154      |        7       |
 |      |      0.245744      |        2       | 
