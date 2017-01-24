@@ -17,7 +17,7 @@ def train():
   data_loader = TextLoader(FLAGS.data_dir, FLAGS.batch_size, FLAGS.sequence_length)
   vocab_size = data_loader.vocab_size
 
-  model = Model(FLAGS.num_units, FLAGS.use_lstm, FLAGS.layer_norm, FLAGS.dropout_keep_prob, FLAGS.num_layers, vocab_size, FLAGS.sequence_length, FLAGS.learning_rate, FLAGS.learning_rate_decay_factor, FLAGS.max_gradient_norm)
+  model = Model(FLAGS.num_units, FLAGS.use_lstm, FLAGS.epsilon, FLAGS.max_computation, FLAGS.time_penalty, vocab_size, FLAGS.sequence_length, FLAGS.learning_rate, FLAGS.learning_rate_decay_factor, FLAGS.max_gradient_norm)
 
   ckpt = tf.train.get_checkpoint_state(FLAGS.checkpoint_dir)
   with tf.Session() as sess:
@@ -37,14 +37,19 @@ def train():
         start = time.time()
         x, y = data_loader.next_batch()
         feed = {model.inputs: x, model.targets: y, model.initial_state: state}
-        train_loss, state, _ = sess.run([model.loss, model.final_state, model.update], feed)
+        loss1, loss2, state, _, remainders, iterations = sess.run([model.loss1, model.loss2, model.final_state, model.update, model.remainders, model.iterations], feed)
+        train_loss = loss1 + loss2
         end = time.time()
-        print("{}/{} (epoch {}), train_loss = {:.3f}, time/batch = {:.3f}".format(e * data_loader.num_batches + b, FLAGS.num_epochs * data_loader.num_batches, e, train_loss, end - start))
+        print("{}/{} (epoch {}), loss1 = {:.3f}, loss2 = {:.3f}, learning_rate = {:f}, time/batch = {:.3f}".format(e * data_loader.num_batches + b, FLAGS.num_epochs * data_loader.num_batches, e, loss1, loss2, model.learning_rate.eval(), end - start))
         current_step += 1
-        if len(previous_losses) > 2 and train_loss > max(previous_losses[-3:]):
+        if len(previous_losses) > 10 and train_loss > max(previous_losses[-10:]):
           sess.run(model.learning_rate_decay_op)
         previous_losses.append(train_loss)
         if current_step % FLAGS.steps_per_checkpoint == 0  or (e==FLAGS.num_epochs-1 and b == data_loader.num_batches-1): # save for the last result
+          R = ['%.3f'%remainders[j][0] for j in xrange(FLAGS.sequence_length)]
+          I = ['%d'%iterations[j][0] for j in xrange(FLAGS.sequence_length)]
+          print(' '.join(R))
+          print(' '.join(I))
           checkpoint_path = os.path.join(FLAGS.checkpoint_dir, 'ckpt')
           model.saver.save(sess, checkpoint_path, global_step=model.global_step)
           print("model saved to {}".format(checkpoint_path))

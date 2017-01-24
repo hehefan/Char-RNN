@@ -13,6 +13,40 @@ from model import Model
 from config import *
 import sys
 
+def demo_one_sentence(step=None):
+  input_file = os.path.join(FLAGS.data_dir, "ptb.valid.txt")
+  with codecs.open(input_file, "r", encoding='utf-8') as f:
+    source = f.read()
+  source = source[11:600]
+
+  data_loader = TextLoader(FLAGS.data_dir, FLAGS.batch_size, FLAGS.sequence_length)
+  vocab_size = data_loader.vocab_size
+  chars = data_loader.chars
+  vocab = data_loader.vocab
+
+  data = [vocab[char] for char in source]
+
+  model = Model(FLAGS.num_units, FLAGS.use_lstm, FLAGS.epsilon, FLAGS.max_computation, FLAGS.time_penalty, vocab_size, 1, FLAGS.learning_rate, FLAGS.learning_rate_decay_factor, FLAGS.max_gradient_norm, True)
+  with tf.Session() as sess:
+    ckpt = tf.train.get_checkpoint_state(FLAGS.checkpoint_dir)
+    if ckpt and ckpt.model_checkpoint_path:
+      if step == None:
+        print("Reading model parameters from %s" % ckpt.model_checkpoint_path)
+        model.saver.restore(sess, ckpt.model_checkpoint_path)
+      else:
+        ckpt_path = os.path.join(FLAGS.checkpoint_dir,'ckpt-%d'%step)
+        print("Reading model parameters from %s" % ckpt_path)
+        model.saver.restore(sess, ckpt_path)
+
+      state = np.zeros((1, model.cell.state_size))
+      for i, char in enumerate(source):
+        x = np.zeros((1, 1))
+        x[0, 0] = data[i]
+        feed = {model.inputs: x, model.initial_state:state}
+        [state, remainders, iterations] = sess.run([model.final_state, model.remainders, model.iterations], feed)
+        print("%s\t%f\t%d"%(char, remainders[0][0], iterations[0][0]))
+
+
 def evaluate_one(step=None):
   input_file = os.path.join(FLAGS.data_dir, "ptb.valid.txt")
   with codecs.open(input_file, "r", encoding='utf-8') as f:
@@ -25,7 +59,7 @@ def evaluate_one(step=None):
 
   data = [vocab[char] for char in data]
 
-  model = Model(FLAGS.num_units, FLAGS.use_lstm, FLAGS.layer_norm, 1.0, FLAGS.num_layers, vocab_size, 1, FLAGS.learning_rate, FLAGS.learning_rate_decay_factor, FLAGS.max_gradient_norm, True)
+  model = Model(FLAGS.num_units, FLAGS.use_lstm, FLAGS.epsilon, FLAGS.max_computation, FLAGS.time_penalty, vocab_size, 1, FLAGS.learning_rate, FLAGS.learning_rate_decay_factor, FLAGS.max_gradient_norm, True)
   with tf.Session() as sess:
     ckpt = tf.train.get_checkpoint_state(FLAGS.checkpoint_dir)
     if ckpt and ckpt.model_checkpoint_path:
@@ -59,7 +93,7 @@ def evaluate():
   vocab = data_loader.vocab
 
   data = [vocab[char] for char in data]
-  model = Model(FLAGS.num_units, FLAGS.use_lstm, FLAGS.layer_norm, 1.0, FLAGS.num_layers, vocab_size, 1, FLAGS.learning_rate, FLAGS.learning_rate_decay_factor, FLAGS.max_gradient_norm, True)
+  model = Model(FLAGS.num_units, FLAGS.use_lstm, FLAGS.epsilon, FLAGS.max_computation, FLAGS.time_penalty, vocab_size, 1, FLAGS.learning_rate, FLAGS.learning_rate_decay_factor, FLAGS.max_gradient_norm, True)
   max_bpc = 0
   with tf.Session() as sess:
     step = 0
@@ -85,4 +119,4 @@ def evaluate():
       else:
         break
 if __name__ == '__main__':
-  evaluate()
+  demo_one_sentence()
